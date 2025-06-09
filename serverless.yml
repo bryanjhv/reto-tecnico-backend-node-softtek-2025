@@ -36,15 +36,12 @@ provider:
             - Fn::GetAtt: [FusionadosTable, Arn]
         - Effect: Allow
           Action:
-            - dynamodb:PutItem
-          Resource:
-            - Fn::GetAtt: [AlmacenadosTable, Arn]
-        - Effect: Allow
-          Action:
             - dynamodb:GetItem
             - dynamodb:PutItem
           Resource:
+            - Fn::GetAtt: [AlmacenadosTable, Arn]
             - Fn::GetAtt: [AutorizadosTable, Arn]
+
   environment:
     SW_API_URL: ${env:SW_API_URL}
     TMDB_API_KEY: ${env:TMDB_API_KEY}
@@ -158,6 +155,10 @@ resources:
         KeySchema:
           - AttributeName: username
             KeyType: HASH
+
+build:
+  esbuild:
+    configFile: esbuild.config.js
 
 plugins:
   - serverless-dynamodb

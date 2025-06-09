@@ -50,7 +50,8 @@ export class AutorizadosController {
 	}
 
 	async checkAuthorization(event: APIGatewayRequestAuthorizerEventV2): Promise<boolean> {
-		const [type, token] = event.identitySource[0]?.split(' ') ?? []
+		const header = event.headers?.['authorization'] ?? event.headers?.['Authorization']
+		const [type, token] = header?.split(' ') ?? []
 		if (type !== 'Bearer' || !token)
 			return false
 		// TODO: add username to context?
