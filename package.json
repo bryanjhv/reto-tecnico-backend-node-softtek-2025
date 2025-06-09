@@ -1,0 +1,41 @@
+{
+	"name": "reto-tecnico-backend-node-softtek-2025",
+	"type": "module",
+	"version": "0.0.1",
+	"private": true,
+	"author": "Bryan Horna <bryanjhv@gmail.com> (https://bryanjhv.com)",
+	"license": "MIT",
+	"scripts": {
+		"deploy": "serverless deploy",
+		"dev": "serverless offline start",
+		"lint": "eslint .",
+		"lint:fix": "eslint . --fix",
+		"test": "NODE_OPTIONS=--experimental-vm-modules jest"
+	},
+	"dependencies": {
+		"@aws-sdk/client-dynamodb": "3.826.0",
+		"@aws-sdk/lib-dynamodb": "3.826.0",
+		"bcryptjs": "3.0.2",
+		"jsonwebtoken": "9.0.2",
+		"reflect-metadata": "0.2.2",
+		"tslib": "2.8.1",
+		"tsyringe": "4.10.0"
+	},
+	"devDependencies": {
+		"@antfu/eslint-config": "4.14.1",
+		"@jest/globals": "30.0.0-beta.3",
+		"@tsconfig/node20": "20.1.5",
+		"@tsconfig/strictest": "2.0.5",
+		"@types/aws-lambda": "8.10.149",
+		"@types/jsonwebtoken": "9.0.9",
+		"@types/node": "20.19.0",
+		"eslint": "9.28.0",
+		"eslint-plugin-format": "1.0.1",
+		"jest": "29.7.0",
+		"serverless": "4.17.0",
+		"serverless-dynamodb": "0.2.56",
+		"serverless-offline": "14.4.0",
+		"ts-jest": "29.3.4",
+		"typescript": "5.8.3"
+	}
+}

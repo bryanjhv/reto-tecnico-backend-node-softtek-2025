@@ -1,0 +1,173 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/lalcebo/json-schema/master/serverless/reference.json
+
+service: reto-tecnico-backend-node-softtek-2025
+
+stages:
+  default:
+    params:
+      cacheadosTableName: 'cacheados-table-${sls:stage}'
+      fusionadosTableName: 'fusionados-table-${sls:stage}'
+      almacenadosTableName: 'almacenados-table-${sls:stage}'
+      autorizadosTableName: 'autorizados-table-${sls:stage}'
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  logs:
+    httpApi: true
+  tracing:
+    apiGateway: true
+    lambda: true
+  httpApi:
+    authorizers:
+      jwt:
+        type: request
+        functionName: authCheck
+        enableSimpleResponses: true
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:Query
+            - dynamodb:PutItem
+          Resource:
+            - Fn::GetAtt: [CacheadosTable, Arn]
+            - Fn::GetAtt: [FusionadosTable, Arn]
+        - Effect: Allow
+          Action:
+            - dynamodb:PutItem
+          Resource:
+            - Fn::GetAtt: [AlmacenadosTable, Arn]
+        - Effect: Allow
+          Action:
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+          Resource:
+            - Fn::GetAtt: [AutorizadosTable, Arn]
+  environment:
+    SW_API_URL: ${env:SW_API_URL}
+    TMDB_API_KEY: ${env:TMDB_API_KEY}
+    TMDB_API_URL: ${env:TMDB_API_URL}
+    CACHEADOS_TABLE_NAME: ${param:cacheadosTableName}
+    FUSIONADOS_TABLE_NAME: ${param:fusionadosTableName}
+    ALMACENADOS_TABLE_NAME: ${param:almacenadosTableName}
+    AUTORIZADOS_TABLE_NAME: ${param:autorizadosTableName}
+    JWT_SECRET_KEY: ${env:JWT_SECRET_KEY}
+
+functions:
+  findFusionados:
+    handler: src/handlers/fusionados.find
+    memorySize: 512
+    timeout: 20
+    events:
+      - httpApi:
+          method: GET
+          path: /fusionados
+  createAlmacenados:
+    handler: src/handlers/almacenados.create
+    memorySize: 128
+    timeout: 15
+    events:
+      - httpApi:
+          method: POST
+          path: /almacenar
+          authorizer:
+            name: jwt
+  getHistorial:
+    handler: src/handlers/historial.get
+    memorySize: 256
+    timeout: 20
+    events:
+      - httpApi:
+          method: GET
+          path: /historial
+          authorizer:
+            name: jwt
+  authCheck:
+    handler: src/handlers/autorizados.check
+    memorySize: 128
+    timeout: 15
+  authLogin:
+    handler: src/handlers/autorizados.login
+    memorySize: 128
+    timeout: 15
+    events:
+      - httpApi:
+          method: POST
+          path: /auth/login
+  authRegister:
+    handler: src/handlers/autorizados.register
+    memorySize: 128
+    timeout: 15
+    events:
+      - httpApi:
+          method: POST
+          path: /auth/register
+
+resources:
+  Resources:
+    CacheadosTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${param:cacheadosTableName}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: key
+            AttributeType: S
+        KeySchema:
+          - AttributeName: key
+            KeyType: HASH
+        TimeToLiveSpecification:
+          Enabled: true
+          AttributeName: expiresAt
+    FusionadosTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${param:fusionadosTableName}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: pk
+            AttributeType: N
+          - AttributeName: sk
+            AttributeType: N
+        KeySchema:
+          - AttributeName: pk
+            KeyType: HASH
+          - AttributeName: sk
+            KeyType: RANGE
+    AlmacenadosTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${param:almacenadosTableName}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+    AutorizadosTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${param:autorizadosTableName}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: username
+            AttributeType: S
+        KeySchema:
+          - AttributeName: username
+            KeyType: HASH
+
+plugins:
+  - serverless-dynamodb
+  - serverless-offline
+
+custom:
+  serverless-dynamodb:
+    stages:
+      - dev
+    start:
+      migrate: true
+      inMemory: false
+      dbPath: .dynamodb

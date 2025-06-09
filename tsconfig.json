@@ -1,0 +1,15 @@
+{
+	"$schema": "https://json.schemastore.org/tsconfig.json",
+	"extends": [
+		"@tsconfig/node20/tsconfig.json",
+		"@tsconfig/strictest/tsconfig.json"
+	],
+	"compilerOptions": {
+		"emitDecoratorMetadata": true,
+		"experimentalDecorators": true,
+		"checkJs": false,
+		"exactOptionalPropertyTypes": false,
+		"importHelpers": true,
+		"outDir": "dist"
+	}
+}
