@@ -21,6 +21,7 @@ Este repositorio contiene mi solución al reto técnico para el cargo de Backend
 
     ```bash
     # para iniciar en local
+    npx serverless dynamodb install # la primera vez
     npm run dev
 
     # para desplegar en AWS
